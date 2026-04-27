@@ -39,7 +39,7 @@ io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
   socket.on("sendMessage", (data) => {
-    socket.broadcast.emit("receiveMessage", data);
+    io.emit("receiveMessage", data); // sends to ALL users
   });
 
   socket.on("disconnect", () => {
