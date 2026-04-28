@@ -5,15 +5,21 @@ body {
   color: white;
 }
 
-/* MAIN LAYOUT */
+/* =========================
+   MAIN APP LAYOUT
+========================= */
 .app {
   display: flex;
   height: 100vh;
+  width: 100%;
 }
 
-/* SIDEBAR */
+/* =========================
+   SIDEBAR (CHAT LIST)
+========================= */
 .sidebar {
   width: 30%;
+  min-width: 260px;
   background: #111b21;
   border-right: 1px solid #2a3942;
   display: flex;
@@ -24,17 +30,32 @@ body {
   padding: 15px;
   font-weight: bold;
   background: #202c33;
+  font-size: 18px;
 }
 
-.online {
-  padding: 10px;
-  font-size: 14px;
-  color: #00ff9d;
+.chat-list {
+  flex: 1;
   overflow-y: auto;
+  padding: 10px;
 }
 
-/* CHAT */
-.chat {
+.user {
+  padding: 12px;
+  margin-bottom: 8px;
+  background: #202c33;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.user:hover {
+  background: #2a3942;
+}
+
+/* =========================
+   CHAT AREA
+========================= */
+.chat-area {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -46,10 +67,13 @@ body {
   background: #202c33;
   padding: 15px;
   font-weight: bold;
+  font-size: 16px;
 }
 
-/* MESSAGES */
-.messages {
+/* =========================
+   MESSAGES
+========================= */
+#messages {
   flex: 1;
   padding: 10px;
   overflow-y: auto;
@@ -58,39 +82,65 @@ body {
 }
 
 .message {
-  padding: 8px 12px;
-  margin: 5px;
-  border-radius: 7px;
-  max-width: 60%;
-  word-wrap: break-word;
+  display: flex;
+  margin: 6px 10px;
 }
 
-.sent {
+.bubble {
+  max-width: 70%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 16px; /* FIX: bigger text */
+  line-height: 1.4;
+  position: relative;
+}
+
+.message.sent .bubble {
   background: #005c4b;
-  align-self: flex-end;
+  color: white;
+  margin-left: auto;
 }
 
-.received {
+.message.received .bubble {
   background: #202c33;
-  align-self: flex-start;
+  color: white;
+  margin-right: auto;
 }
 
-/* INPUT */
-.input-bar {
+/* message text */
+.text {
+  font-size: 16px;
+  display: block;
+}
+
+/* ticks + meta */
+.meta {
+  font-size: 11px;
+  color: #aaa;
+  margin-top: 4px;
+  display: block;
+  text-align: right;
+}
+
+/* =========================
+   INPUT BAR
+========================= */
+.chat-input {
   display: flex;
   padding: 10px;
   background: #202c33;
 }
 
-.input-bar input {
+.chat-input input {
   flex: 1;
   padding: 10px;
   border: none;
   border-radius: 6px;
   outline: none;
+  font-size: 15px;
 }
 
-.input-bar button {
+.chat-input button {
   margin-left: 10px;
   background: #00a884;
   border: none;
@@ -98,66 +148,27 @@ body {
   color: white;
   cursor: pointer;
   border-radius: 6px;
+  font-size: 16px;
 }
 
-/* TYPING */
+/* =========================
+   TYPING
+========================= */
 .typing {
   font-size: 12px;
   padding: 5px 10px;
   color: #aaa;
 }
 
-/* MOBILE RESPONSIVE */
+/* =========================
+   MOBILE
+========================= */
 @media (max-width: 768px) {
   .sidebar {
     display: none;
   }
 
-  .chat {
+  .chat-area {
     width: 100%;
   }
-}..message {
-  display: flex;
-  margin: 6px 10px;
-  font-size: 16px;   /* 👈 MAIN FIX (bigger text) */
-}
-
-.bubble {
-  max-width: 70%;
-  padding: 12px 14px;
-  border-radius: 12px;
-  font-size: 16px;   /* 👈 message text size */
-  line-height: 1.4;
-}
-
-.text {
-  font-size: 16px;   /* 👈 actual message text */
-}
-
-.meta {
-  font-size: 11px;
-  color: gray;
-  margin-top: 4px;
-}
-
-.message.sent .bubble {
-  background: #dcf8c6;
-  margin-left: auto;
-}
-
-.message.received .bubble {
-  background: #ffffff;
-  margin-right: auto;
-}.chat-container {
-  max-width: 500px;
-  margin: auto;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.chat-messages {
-  flex: 1;
-  overflow-y: auto;
-  padding: 10px;
 }

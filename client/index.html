@@ -8,30 +8,30 @@
 
 <div class="app">
 
-  <!-- LEFT SIDEBAR -->
+  <!-- LEFT SIDEBAR (CHAT LIST) -->
   <div class="sidebar">
 
     <div class="sidebar-header">
-      <div class="me">💬 Chats</div>
+      💬 Chats
     </div>
 
-    <div id="onlineUsers" class="online"></div>
+    <div id="onlineUsers" class="chat-list"></div>
 
   </div>
 
-  <!-- CHAT AREA -->
-  <div class="chat">
+  <!-- RIGHT CHAT AREA -->
+  <div class="chat-area">
 
     <div class="chat-header">
-      <div id="activeUser">WhatsApp Chat</div>
+      WhatsApp Web Clone
     </div>
 
-    <div id="messages" class="messages"></div>
+    <div class="chat-messages" id="messages"></div>
 
-    <div id="typing" class="typing"></div>
+    <div class="typing" id="typing"></div>
 
-    <div class="input-bar">
-      <input id="msg" placeholder="Type a message" />
+    <div class="chat-input">
+      <input id="msg" placeholder="Type a message..." />
       <button onclick="send()">➤</button>
     </div>
 
