@@ -8,15 +8,20 @@ function addMessage(data, type) {
   const div = document.createElement("div");
   div.classList.add("message", type);
 
-  div.textContent = `${data.user}: ${data.text}`;
+  let ticks = "";
+
+  if (type === "sent") {
+    if (data.status === "sent") ticks = " ✔";
+    if (data.status === "delivered") ticks = " ✔✔";
+    if (data.status === "read") ticks = " ✔✔ (blue)";
+  }
+
+  div.textContent = `${data.user}: ${data.text} ${ticks}`;
 
   const messages = document.getElementById("messages");
   messages.appendChild(div);
-
-  // 👇 ADD THIS HERE
   messages.scrollTop = messages.scrollHeight;
 }
-
 // send message
 function send() {
   const input = document.getElementById("msg");
@@ -24,10 +29,11 @@ function send() {
 
   if (msg.trim() === "") return;
 
-  const fullMessage = {
-    user: username,
-    text: msg
-  };
+ const fullMessage = {
+  user: username,
+  text: msg,
+  status: "sent"
+};
 
   socket.emit("sendMessage", fullMessage);
 

@@ -55,11 +55,20 @@ io.on("connection", (socket) => {
   });
 
   socket.on("sendMessage", async (data) => {
-    const newMessage = new Message(data);
-    await newMessage.save();
-
-    io.emit("receiveMessage", data);
+  const newMessage = new Message({
+    user: data.user,
+    text: data.text,
+    status: "sent"
   });
+
+  await newMessage.save();
+
+  // deliver to everyone
+  io.emit("receiveMessage", {
+    ...data,
+    status: "delivered"
+  });
+});
 
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
