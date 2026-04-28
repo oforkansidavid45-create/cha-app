@@ -35,7 +35,7 @@ function openChat(user) {
 }
 
 // =========================
-// RENDER MESSAGE
+// RENDER MESSAGE (FIXED)
 // =========================
 function addMessage(data) {
   const box = document.getElementById("messages");
@@ -46,7 +46,7 @@ function addMessage(data) {
   div.innerHTML = `
     <div class="bubble">
       <div class="text">${data.text}</div>
-      <div class="meta">${data.user}</div>
+      <div class="meta">${data.user || "Unknown"}</div>
     </div>
   `;
 
@@ -55,33 +55,33 @@ function addMessage(data) {
 }
 
 // =========================
-// SEND MESSAGE
+// SEND MESSAGE (FIXED)
 // =========================
 function send() {
   const input = document.getElementById("msg");
   const text = input.value.trim();
 
-  if (!text || !currentChatUser) return;
+  if (!text || !currentChatUser || !currentRoom) return;
 
-  const msg = {
+  const msgData = {
     from: username,
     to: currentChatUser,
     text
   };
 
-  socket.emit("sendPrivateMessage", msg);
+  socket.emit("sendPrivateMessage", msgData);
 
-  // show instantly
+  // instant UI (IMPORTANT FIX)
   addMessage({
     user: username,
-    text
+    text: text
   });
 
   input.value = "";
 }
 
 // =========================
-// RECEIVE MESSAGE
+// RECEIVE MESSAGE (FIXED)
 // =========================
 socket.on("receivePrivateMessage", (data) => {
   if (!currentRoom) return;
@@ -100,7 +100,7 @@ socket.on("roomMessages", (messages) => {
 });
 
 // =========================
-// TYPING
+// TYPING (FIXED SAFE)
 // =========================
 document.getElementById("msg").addEventListener("input", () => {
   if (!currentChatUser) return;
@@ -126,7 +126,7 @@ socket.on("updateOnlineUsers", (users) => {
 });
 
 // =========================
-// TYPING UI
+// TYPING UI (FIXED)
 // =========================
 socket.on("showTyping", (name) => {
   if (name !== currentChatUser) return;
