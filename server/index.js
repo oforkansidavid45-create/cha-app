@@ -18,8 +18,13 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static("client"));
 
+// 🔥 ADD THIS (Render health check)
+app.get("/", (req, res) => {
+  res.send("Chat server is running 🚀");
+});
+
 // =========================
-// DB CONNECTION (SAFE)
+// DB CONNECTION
 // =========================
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected"))
@@ -51,9 +56,7 @@ io.on("connection", (socket) => {
 
   console.log("Connected:", socket.id);
 
-  // =========================
   // JOIN USER
-  // =========================
   socket.on("join", (username) => {
     if (!username) return;
 
@@ -63,16 +66,12 @@ io.on("connection", (socket) => {
     io.emit("updateOnlineUsers", Object.values(onlineUsers));
   });
 
-  // =========================
   // JOIN ROOM
-  // =========================
   socket.on("joinRoom", (roomId) => {
     socket.join(roomId);
   });
 
-  // =========================
-  // LOAD ROOM MESSAGES
-  // =========================
+  // LOAD MESSAGES
   socket.on("loadRoomMessages", async (roomId) => {
     try {
       const messages = await Message.find({ roomId }).sort({ createdAt: 1 });
@@ -82,12 +81,9 @@ io.on("connection", (socket) => {
     }
   });
 
-  // =========================
   // SEND PRIVATE MESSAGE
-  // =========================
   socket.on("sendPrivateMessage", async ({ from, to, text }) => {
     try {
-
       if (!from || !to || !text) return;
 
       const roomId = getRoomId(from, to);
@@ -100,7 +96,6 @@ io.on("connection", (socket) => {
         createdAt: new Date()
       });
 
-      // send to BOTH users in room
       io.to(roomId).emit("receivePrivateMessage", {
         user: from,
         text,
@@ -114,9 +109,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  // =========================
   // TYPING
-  // =========================
   socket.on("typing", (name) => {
     socket.broadcast.emit("showTyping", name);
   });
@@ -125,9 +118,7 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("hideTyping");
   });
 
-  // =========================
   // DISCONNECT
-  // =========================
   socket.on("disconnect", () => {
     delete onlineUsers[socket.id];
     io.emit("updateOnlineUsers", Object.values(onlineUsers));
@@ -137,7 +128,10 @@ io.on("connection", (socket) => {
 });
 
 // =========================
-// START SERVER
+// START SERVER (IMPORTANT FIX FOR RENDER)
 // =========================
-const PORT = process.env.PORT || 10000;
-server.listen(PORT, () => console.log("Server running on", PORT));
+const PORT = process.env.PORT; // 🔥 FIXED (no fallback)
+
+server.listen(PORT, "0.0.0.0", () => {
+  console.log("Server running on", PORT);
+});

@@ -78,7 +78,7 @@ function send() {
     roomId: currentRoom
   };
 
-  // 🔥 INSTANT UI (important)
+  // instant UI
   addMessage(messageData);
 
   socket.emit("sendPrivateMessage", {
@@ -94,12 +94,12 @@ function send() {
 // RECEIVE MESSAGE (FIXED)
 // =========================
 socket.on("receivePrivateMessage", (data) => {
-  if (data.roomId !== currentRoom) return;
+  if (!currentRoom || data.roomId !== currentRoom) return;
   addMessage(data);
 });
 
 // =========================
-// LOAD HISTORY (FIXED)
+// LOAD HISTORY
 // =========================
 socket.on("roomMessages", (messages) => {
   const box = document.getElementById("messages");
@@ -108,9 +108,11 @@ socket.on("roomMessages", (messages) => {
 });
 
 // =========================
-// TYPING (ROOM SAFE)
+// TYPING (FIXED)
 // =========================
-document.getElementById("msg").addEventListener("input", () => {
+const input = document.getElementById("msg");
+
+input.addEventListener("input", () => {
   if (!currentChatUser) return;
 
   socket.emit("typing", username);
@@ -134,15 +136,13 @@ socket.on("updateOnlineUsers", (users) => {
 });
 
 // =========================
-// TYPING UI (FIXED SAFE)
+// TYPING UI (FIXED)
 // =========================
 socket.on("showTyping", (name) => {
-  const t = document.getElementById("typing");
-  if (!t) return;
-
   if (name !== currentChatUser) return;
 
-  t.innerText = `${name} is typing...`;
+  const t = document.getElementById("typing");
+  if (t) t.innerText = `${name} is typing...`;
 });
 
 socket.on("hideTyping", () => {
