@@ -1,3 +1,4 @@
+let onlineUsers = {};
 require("dotenv").config();
 
 const express = require("express");
@@ -36,41 +37,68 @@ const io = new Server(server, {
   }
 });
 
+let onlineUsers = {};
+
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
-  // when user is typing
+  // =========================
+  // 👤 ONLINE USERS
+  // =========================
+  socket.on("join", (username) => {
+  if (!username) return;
+
+  socket.username = username;
+  onlineUsers[socket.id] = username;
+
+  io.emit("updateOnlineUsers", Object.values(onlineUsers));
+});
+
+  // =========================
+  // ⌨️ TYPING INDICATOR
+  // =========================
   socket.on("typing", (username) => {
     socket.broadcast.emit("showTyping", username);
   });
 
-  // when user stops typing
   socket.on("stopTyping", () => {
     socket.broadcast.emit("hideTyping");
   });
 
+  // =========================
+  // 💬 LOAD MESSAGES
+  // =========================
   socket.on("loadMessages", async () => {
     const messages = await Message.find().sort({ createdAt: 1 });
     socket.emit("messageHistory", messages);
   });
 
+  // =========================
+  // 📩 SEND MESSAGE
+  // =========================
   socket.on("sendMessage", async (data) => {
-  const newMessage = new Message({
-    user: data.user,
-    text: data.text,
-    status: "sent"
+    const newMessage = new Message({
+      user: data.user,
+      text: data.text,
+      status: "sent"
+    });
+
+    await newMessage.save();
+
+    io.emit("receiveMessage", {
+      ...data,
+      status: "delivered"
+    });
   });
 
-  await newMessage.save();
-
-  // deliver to everyone
-  io.emit("receiveMessage", {
-    ...data,
-    status: "delivered"
-  });
-});
-
+  // =========================
+  // ❌ DISCONNECT
+  // =========================
   socket.on("disconnect", () => {
+    delete onlineUsers[socket.id];
+
+    io.emit("updateOnlineUsers", Object.values(onlineUsers));
+
     console.log("User disconnected:", socket.id);
   });
 });
