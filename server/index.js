@@ -39,6 +39,16 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
+  // when user is typing
+  socket.on("typing", (username) => {
+    socket.broadcast.emit("showTyping", username);
+  });
+
+  // when user stops typing
+  socket.on("stopTyping", () => {
+    socket.broadcast.emit("hideTyping");
+  });
+
   socket.on("loadMessages", async () => {
     const messages = await Message.find().sort({ createdAt: 1 });
     socket.emit("messageHistory", messages);
@@ -55,7 +65,6 @@ io.on("connection", (socket) => {
     console.log("User disconnected:", socket.id);
   });
 });
-
 // Start server
 const PORT = process.env.PORT || 10000;
 

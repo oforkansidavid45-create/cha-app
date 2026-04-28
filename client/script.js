@@ -51,3 +51,35 @@ socket.on("messageHistory", (messages) => {
     }
   });
 });
+let typingTimeout;
+
+// detect typing
+document.getElementById("msg").addEventListener("input", () => {
+  socket.emit("typing", username);
+
+  clearTimeout(typingTimeout);
+
+  typingTimeout = setTimeout(() => {
+    socket.emit("stopTyping");
+  }, 1000);
+});
+
+// show typing text
+socket.on("showTyping", (name) => {
+  let typingDiv = document.getElementById("typing");
+
+  if (!typingDiv) {
+    typingDiv = document.createElement("div");
+    typingDiv.id = "typing";
+    typingDiv.className = "typing";
+    document.getElementById("messages").appendChild(typingDiv);
+  }
+
+  typingDiv.textContent = `${name} is typing...`;
+});
+
+// hide typing text
+socket.on("hideTyping", () => {
+  const typingDiv = document.getElementById("typing");
+  if (typingDiv) typingDiv.remove();
+});

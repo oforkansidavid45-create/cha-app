@@ -102,3 +102,9 @@ body {
 .chat-input button:hover {
   background: #02c39a;
 }
+.typing {
+  font-style: italic;
+  color: gray;
+  margin: 5px;
+  font-size: 12px;
+}
