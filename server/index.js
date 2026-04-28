@@ -7,7 +7,7 @@ const mongoose = require("mongoose");
 const { Server } = require("socket.io");
 
 const authRoutes = require("./routes/auth");
-const Message = require("./models/message"); // ✅ ADD THIS
+const Message = require("./models/message");
 
 const app = express();
 const server = http.createServer(app);
@@ -29,32 +29,33 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected"))
   .catch((err) => console.log("DB Error:", err));
 
-// Socket setup (ONLY ONCE)
+// Socket setup
 const io = new Server(server, {
   cors: {
     origin: "*"
   }
 });
 
+// 👤 ONLINE USERS STORE
 let onlineUsers = {};
 
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
   // =========================
-  // 👤 ONLINE USERS
+  // JOIN USER
   // =========================
   socket.on("join", (username) => {
-  if (!username) return;
+    if (!username) return;
 
-  socket.username = username;
-  onlineUsers[socket.id] = username;
+    socket.username = username;
+    onlineUsers[socket.id] = username;
 
-  io.emit("updateOnlineUsers", Object.values(onlineUsers));
-});
+    io.emit("updateOnlineUsers", Object.values(onlineUsers));
+  });
 
   // =========================
-  // ⌨️ TYPING INDICATOR
+  // TYPING
   // =========================
   socket.on("typing", (username) => {
     socket.broadcast.emit("showTyping", username);
@@ -65,7 +66,7 @@ io.on("connection", (socket) => {
   });
 
   // =========================
-  // 💬 LOAD MESSAGES
+  // LOAD MESSAGES
   // =========================
   socket.on("loadMessages", async () => {
     const messages = await Message.find().sort({ createdAt: 1 });
@@ -73,24 +74,25 @@ io.on("connection", (socket) => {
   });
 
   // =========================
-  // 📩 SEND MESSAGE
+  // SEND MESSAGE
   // =========================
   socket.on("sendMessage", async (data) => {
-  const newMessage = new Message({
-    user: data.user,
-    text: data.text,
-    status: "sent"
-  });
+    const newMessage = new Message({
+      user: data.user,
+      text: data.text,
+      status: "sent"
+    });
 
-  await newMessage.save();
-  io.emit("receiveMessage", {
-    ...data,
-    status: "delivered"
+    await newMessage.save();
+
+    io.emit("receiveMessage", {
+      ...data,
+      status: "delivered"
+    });
   });
-});
 
   // =========================
-  // ❌ DISCONNECT
+  // DISCONNECT
   // =========================
   socket.on("disconnect", () => {
     delete onlineUsers[socket.id];
@@ -100,6 +102,7 @@ io.on("connection", (socket) => {
     console.log("User disconnected:", socket.id);
   });
 });
+
 // Start server
 const PORT = process.env.PORT || 10000;
 
