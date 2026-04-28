@@ -13,7 +13,7 @@ if (!username || username.trim() === "") {
 socket.emit("join", username);
 
 // =========================
-// 💬 ADD MESSAGE TO UI
+// 💬 ADD MESSAGE
 // =========================
 function addMessage(data, type) {
   const div = document.createElement("div");
@@ -21,14 +21,14 @@ function addMessage(data, type) {
 
   let ticks = "";
 
-  // show ticks only for YOUR messages
+  // ticks only for your messages
   if (data.user === username) {
     if (data.status === "sent") ticks = " ✔";
     if (data.status === "delivered") ticks = " ✔✔";
     if (data.status === "read") ticks = " ✔✔ (blue)";
   }
 
-  div.textContent = `${data.user}: ${data.text}${ticks}`;
+  div.textContent = `${data.user}: ${data.text} ${ticks}`;
 
   const messages = document.getElementById("messages");
   messages.appendChild(div);
@@ -61,33 +61,27 @@ function send() {
 // 📥 RECEIVE MESSAGE
 // =========================
 socket.on("receiveMessage", (data) => {
-  if (data.user === username) {
-    addMessage(data, "sent");
-  } else {
-    addMessage(data, "received");
-  }
+  const type = data.user === username ? "sent" : "received";
+  addMessage(data, type);
 });
 
 // =========================
-// 📜 MESSAGE HISTORY
+// 📜 HISTORY
 // =========================
 socket.emit("loadMessages");
 
 socket.on("messageHistory", (messages) => {
   const messagesDiv = document.getElementById("messages");
-  messagesDiv.innerHTML = ""; // prevent duplicates
+  messagesDiv.innerHTML = "";
 
   messages.forEach((data) => {
-    if (data.user === username) {
-      addMessage(data, "sent");
-    } else {
-      addMessage(data, "received");
-    }
+    const type = data.user === username ? "sent" : "received";
+    addMessage(data, type);
   });
 });
 
 // =========================
-// ⌨️ TYPING SYSTEM
+// ⌨️ TYPING
 // =========================
 let typingTimeout;
 
@@ -122,20 +116,20 @@ socket.on("hideTyping", () => {
 });
 
 // =========================
-// 🟢 ONLINE USERS (FIXED UI)
+// 🟢 ONLINE USERS (FIXED + CLEAN UI)
 // =========================
 socket.on("updateOnlineUsers", (users) => {
   const onlineDiv = document.getElementById("onlineUsers");
 
   if (!onlineDiv) return;
 
-  if (users.length === 0) {
+  if (!users || users.length === 0) {
     onlineDiv.innerHTML = "🟢 No users online";
     return;
   }
 
   onlineDiv.innerHTML = `
-    🟢 Online Users<br>
+    <b>🟢 Online</b><br>
     ${users.map(user => `• ${user}`).join("<br>")}
   `;
 });
