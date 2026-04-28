@@ -1,4 +1,3 @@
-let onlineUsers = {};
 require("dotenv").config();
 
 const express = require("express");
@@ -77,19 +76,18 @@ io.on("connection", (socket) => {
   // 📩 SEND MESSAGE
   // =========================
   socket.on("sendMessage", async (data) => {
-    const newMessage = new Message({
-      user: data.user,
-      text: data.text,
-      status: "sent"
-    });
-
-    await newMessage.save();
-
-    io.emit("receiveMessage", {
-      ...data,
-      status: "delivered"
-    });
+  const newMessage = new Message({
+    user: data.user,
+    text: data.text,
+    status: "sent"
   });
+
+  await newMessage.save();
+  io.emit("receiveMessage", {
+    ...data,
+    status: "delivered"
+  });
+});
 
   // =========================
   // ❌ DISCONNECT
